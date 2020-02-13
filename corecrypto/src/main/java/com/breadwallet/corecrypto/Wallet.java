@@ -15,6 +15,7 @@ import com.breadwallet.corenative.crypto.BRCryptoNetworkFee;
 import com.breadwallet.corenative.crypto.BRCryptoPaymentProtocolRequest;
 import com.breadwallet.corenative.crypto.BRCryptoTransfer;
 import com.breadwallet.corenative.crypto.BRCryptoTransferAttribute;
+import com.breadwallet.corenative.crypto.BRCryptoTransferMultiSpec;
 import com.breadwallet.corenative.crypto.BRCryptoWallet;
 import com.breadwallet.corenative.crypto.BRCryptoWalletManager;
 import com.breadwallet.corenative.crypto.BRCryptoWalletSweeper;
@@ -108,6 +109,23 @@ final class Wallet implements com.breadwallet.crypto.Wallet {
             }
 
         return core.createTransfer(coreAddress, coreAmount, coreFeeBasis, coreAttributes).transform(t -> Transfer.create(t, this));
+    }
+
+    @Override
+    public Optional<Transfer> createTransferMultiple(List<TransferPart> parts,
+                                                     com.breadwallet.crypto.TransferFeeBasis estimatedFeeBasis) {
+        BRCryptoFeeBasis coreFeeBasis = TransferFeeBasis.from(estimatedFeeBasis).getCoreBRFeeBasis();
+
+
+        List<BRCryptoTransferMultiSpec> coreParts = new ArrayList<>();
+        if (null != parts) {
+            for (Wallet.TransferPart part : parts) {
+                coreParts.add(new BRCryptoTransferMultiSpec(
+                        Address.from(part.target).getCoreBRCryptoAddress(),
+                        Amount.from(part.amount).getCoreBRCryptoAmount()));
+            }
+        }
+        return core.createTransferMultiple(coreParts, coreFeeBasis).transform(t -> Transfer.create(t, this));
     }
 
     /* package */

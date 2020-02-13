@@ -217,6 +217,24 @@ public class BRCryptoWallet extends PointerType {
         ).transform(BRCryptoTransfer::new);
     }
 
+    public Optional<BRCryptoTransfer> createTransferMultiple(List<BRCryptoTransferMultiSpec> specs,
+                                                             BRCryptoFeeBasis estimatedFeeBasis) {
+        Pointer thisPtr = this.getPointer();
+
+        int specsCount = specs.size();
+        BRCryptoTransferMultiSpec[] specsRef = new BRCryptoTransferMultiSpec[specsCount];
+        for (int i = 0; i < specsCount; i++) specsRef[i] = specs.get(i);
+
+        return Optional.fromNullable(
+                CryptoLibraryIndirect.cryptoWalletCreateTransferMultiple(
+                        thisPtr,
+                        new SizeT(specsCount),
+                        specsRef,
+                        estimatedFeeBasis.getPointer()
+                )
+        ).transform(BRCryptoTransfer::new);
+    }
+
     public Optional<BRCryptoTransfer> createTransferForWalletSweep(BRCryptoWalletSweeper sweeper, BRCryptoFeeBasis estimatedFeeBasis) {
         Pointer thisPtr = this.getPointer();
 

@@ -9,6 +9,7 @@ package com.breadwallet.corenative;
 
 import com.breadwallet.corenative.crypto.BRCryptoNetworkFee;
 import com.breadwallet.corenative.crypto.BRCryptoTransferAttribute;
+import com.breadwallet.corenative.crypto.BRCryptoTransferMultiSpec;
 import com.breadwallet.corenative.utility.SizeT;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -40,6 +41,11 @@ public final class CryptoLibraryIndirect {
         return INSTANCE.cryptoWalletValidateTransferAttributes(wallet, countOfAttributes, attributes, validates);
     }
 
+    public static Pointer cryptoWalletCreateTransferMultiple(Pointer wallet, SizeT specsCount, BRCryptoTransferMultiSpec[] specs, Pointer feeBasis) {
+        specs = specs.length == 0 ? null : specs;
+        return INSTANCE.cryptoWalletCreateTransferMultiple(wallet, specsCount, specs, feeBasis);
+    }
+
     public static void cwmAnnounceGetTransferItemGEN(Pointer cwm, Pointer callbackState, int status,
                                                      String hash, String uids, String sourceAddr, String targetAddr,
                                                      String amount, String currency, String fee,
@@ -63,7 +69,10 @@ public final class CryptoLibraryIndirect {
 
         // crypto/BRCryptoWallet.h
         Pointer cryptoWalletCreateTransfer(Pointer wallet, Pointer target, Pointer amount, Pointer feeBasis, SizeT attributesCount, BRCryptoTransferAttribute[] attributes);
+
         int cryptoWalletValidateTransferAttributes(Pointer wallet, SizeT countOfAttributes, BRCryptoTransferAttribute[] attributes, IntByReference validates);
+
+        Pointer cryptoWalletCreateTransferMultiple(Pointer wallet, SizeT specsCount, BRCryptoTransferMultiSpec[] specs, Pointer feeBasis);
 
         void cwmAnnounceGetTransferItemGEN(Pointer cwm, Pointer callbackState, int status,
                                            String hash, String uids, String sourceAddr, String targetAddr,
