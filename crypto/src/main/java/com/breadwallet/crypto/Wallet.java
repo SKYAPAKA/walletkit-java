@@ -31,17 +31,7 @@ public interface Wallet {
 
     Optional<? extends Transfer> createTransfer(Address target, Amount amount, TransferFeeBasis estimatedFeeBasis, @Nullable Set<TransferAttribute> attributes);
 
-    class TransferPart {
-        public Address target;
-        public Amount  amount;
-
-        public TransferPart (Address target, Amount amount) {
-            this.target = target;
-            this.amount = amount;
-        }
-    }
-
-    Optional<? extends Transfer> createTransferMultiple (List<TransferPart> parts, TransferFeeBasis estimatedFeeBasis);
+    Optional<? extends Transfer> createTransferMultiple(List<TransferOutput> outputs, TransferFeeBasis estimatedFeeBasis);
 
     /**
      * Estimate the fee for a transfer with `amount` from `wallet`.  If provided use the `feeBasis`

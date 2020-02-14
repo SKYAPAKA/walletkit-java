@@ -217,22 +217,34 @@ public class BRCryptoWallet extends PointerType {
         ).transform(BRCryptoTransfer::new);
     }
 
-    public Optional<BRCryptoTransfer> createTransferMultiple(List<BRCryptoTransferMultiSpec> specs,
+    public Optional<BRCryptoTransfer> createTransferMultiple(List<BRCryptoTransferOutput> outputs,
                                                              BRCryptoFeeBasis estimatedFeeBasis) {
         Pointer thisPtr = this.getPointer();
 
-        int specsCount = specs.size();
-        BRCryptoTransferMultiSpec[] specsRef = new BRCryptoTransferMultiSpec[specsCount];
-        for (int i = 0; i < specsCount; i++) specsRef[i] = specs.get(i);
+        int outputsCount = outputs.size();
+        switch (outputsCount) {
+            case 0:
+                return Optional.absent();
+            case 1:
+                return createTransfer(
+                        outputs.get(0).target,
+                        outputs.get(0).amount,
+                        estimatedFeeBasis,
+                        new ArrayList<>(0));
+            default: {
+                BRCryptoTransferOutput[] outputsArray = (BRCryptoTransferOutput[]) outputs.get(0).toArray(outputsCount);
+                for (int i = 0; i < outputsCount; i++) outputsArray[i] = outputs.get(i);
 
-        return Optional.fromNullable(
-                CryptoLibraryIndirect.cryptoWalletCreateTransferMultiple(
-                        thisPtr,
-                        new SizeT(specsCount),
-                        specsRef,
-                        estimatedFeeBasis.getPointer()
-                )
-        ).transform(BRCryptoTransfer::new);
+                return Optional.fromNullable(
+                        CryptoLibraryIndirect.cryptoWalletCreateTransferMultiple(
+                                thisPtr,
+                                new SizeT(outputsCount),
+                                outputsArray[0],   //  Per JNA pass 'array of structure'
+                                estimatedFeeBasis.getPointer()
+                        )
+                ).transform(BRCryptoTransfer::new);
+            }
+        }
     }
 
     public Optional<BRCryptoTransfer> createTransferForWalletSweep(BRCryptoWalletSweeper sweeper, BRCryptoFeeBasis estimatedFeeBasis) {
